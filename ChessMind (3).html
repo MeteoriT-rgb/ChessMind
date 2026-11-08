@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ChessMind</title>
+<style>
+:root{--bg:#f2f0ea;--card:#fff;--tx:#16201a;--mu:#5f6e64;--ac:#2f7d57;--ac2:#fff;--bd:#dde2d8;--sh:0 10px 28px rgba(25,50,38,.12);--l:#ebecd0;--d:#779556;--okc:#0d6b3f;--okb:rgba(47,160,100,.16);--badc:#a3231c;--badb:rgba(220,70,60,.13);--hc:#5a4200;--hb:linear-gradient(90deg,#fff1b8,#ffd95c);--c0:#2f9e6b;--c1:#e0a100;--c2:#d6453d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0e1310;--card:#171f1a;--tx:#edf3ee;--mu:#93a499;--ac:#5ed39a;--ac2:#06251a;--bd:#26332b;--sh:0 10px 28px rgba(0,0,0,.45);--okc:#7ae6ad;--badc:#ff9a92;--hc:#ffe596;--hb:linear-gradient(90deg,rgba(255,200,40,.22),rgba(255,200,40,.38))}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0e1310;--card:#171f1a;--tx:#edf3ee;--mu:#93a499;--ac:#5ed39a;--ac2:#06251a;--bd:#26332b;--sh:0 10px 28px rgba(0,0,0,.45);--okc:#7ae6ad;--badc:#ff9a92;--hc:#ffe596;--hb:linear-gradient(90deg,rgba(255,200,40,.22),rgba(255,200,40,.38))}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{display:flex;align-items:center;gap:10px;padding:14px 16px 2px;max-width:900px;margin:auto}
+header h1{font:700 24px Georgia,serif;margin:0;flex:1}
+.logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--ac),#1b4b34);color:#fff;display:grid;place-items:center;font-size:25px;box-shadow:var(--sh)}
+#th{padding:6px 11px;border-radius:99px}
+nav{display:flex;gap:6px;overflow-x:auto;padding:10px 16px;max-width:900px;margin:auto;scrollbar-width:none}
+nav button{white-space:nowrap;border-radius:99px;padding:8px 16px}
+main{max-width:900px;margin:auto;padding:4px 16px 56px}
+main>*{animation:up .45s cubic-bezier(.2,.8,.2,1) both}main>:nth-child(2){animation-delay:.05s}main>:nth-child(3){animation-delay:.1s}main>:nth-child(4){animation-delay:.15s}main>:nth-child(n+5){animation-delay:.2s}
+@keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+h1,h2,h3{font-family:Georgia,serif}h2{margin:12px 0 2px;font-size:26px}h3{margin:14px 0 4px}
+.mu{color:var(--mu)}.sm{font-size:14px}
+button{font:inherit;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:9px 15px;border-radius:12px;cursor:pointer;transition:transform .15s,box-shadow .15s,background .15s,border-color .15s}
+button:hover{border-color:var(--ac);transform:translateY(-1px)}button:active{transform:scale(.97)}
+button.on,button.pr{background:var(--ac);color:var(--ac2);border-color:var(--ac)}button.pr:hover{box-shadow:0 6px 16px rgba(47,125,87,.35)}
+.row,.chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:14px 0}
+.card{text-align:left;padding:16px;display:flex;flex-direction:column;gap:3px;border-radius:16px}.card:hover{box-shadow:var(--sh);transform:translateY(-4px)}
+.card span{color:var(--mu);font-size:14px}.card .gl{font-size:36px;line-height:1.1;color:var(--tx)}
+.num{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--ac);color:var(--ac2);font:700 14px system-ui;margin-right:8px}
+.panel{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:4px 18px 12px;margin:10px 0;box-shadow:var(--sh)}
+.hero{position:relative;overflow:hidden;border-radius:24px;padding:36px 24px;background:linear-gradient(135deg,#2f7d57,#143a2a);color:#fff;margin:10px 0;box-shadow:var(--sh)}
+.hero h2{font-size:clamp(28px,6vw,42px);margin:0 0 8px;line-height:1.1;position:relative}.hero p{max-width:480px;opacity:.9;position:relative}
+.hero button{background:#fff;color:#143a2a;border:0;font-weight:700;position:relative}
+.fl{position:absolute;font-size:60px;opacity:.12;animation:fl 7s ease-in-out infinite}
+@keyframes fl{50%{transform:translateY(-16px) rotate(8deg)}}
+.lay{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:start}
+@media(max-width:820px){.lay{grid-template-columns:1fr;gap:0}}
+.bd{--bs:min(calc(100vw - 32px),480px);width:var(--bs);height:var(--bs);display:grid;grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));border-radius:10px;overflow:hidden;margin:12px 0;border:3px solid #2b3a31;box-shadow:var(--sh);flex:none;touch-action:none;user-select:none;-webkit-user-select:none}
+.sq{min-width:0;min-height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;font-size:calc(var(--bs)/8*.8);line-height:1;font-family:"Segoe UI Symbol","Noto Sans Symbols 2","Apple Symbols","DejaVu Sans",sans-serif}
+.sq.l{background:var(--l)}.sq.d{background:var(--d)}
+.pc{width:100%;height:100%;display:flex;align-items:center;justify-content:center;pointer-events:none;position:relative;z-index:1}
+.pc.w{color:#fff;text-shadow:0 0 2px #000,0 1px 1px #000,0 -1px 1px #000,1px 0 1px #000,-1px 0 1px #000}.pc.b{color:#1b1b1b;text-shadow:0 1px 1px rgba(255,255,255,.35)}
+.pc.mv{z-index:5;animation:slide .24s cubic-bezier(.3,.7,.3,1)}
+@keyframes slide{from{transform:translate(calc(var(--dx)*100%),calc(var(--dy)*100%))}}
+.sq.last{box-shadow:inset 0 0 0 100px rgba(255,235,0,.34)}.sq.sel{box-shadow:inset 0 0 0 100px rgba(255,230,0,.55)}
+.sq.tg{background-image:radial-gradient(circle,rgba(20,40,25,.38) 17%,transparent 19%)}
+.sq.cap{background-image:radial-gradient(circle,transparent 58%,rgba(210,45,45,.75) 60%)}
+.sq.chk{background-image:radial-gradient(circle,rgba(255,60,60,.95) 0,rgba(230,57,70,.55) 45%,transparent 75%)}
+.sq.hint{animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:inset 0 0 0 100px rgba(255,193,7,.2)}50%{box-shadow:inset 0 0 0 100px rgba(255,193,7,.8)}}
+.sq[data-r]::before{content:attr(data-r);position:absolute;top:2px;left:3px;font:700 10px system-ui;opacity:.6;color:#222;z-index:2}
+.sq[data-f]::after{content:attr(data-f);position:absolute;right:3px;bottom:1px;font:700 10px system-ui;opacity:.6;color:#222;z-index:2}
+.bd.shake{animation:shake .4s}.bd.win{animation:win 1.3s}
+@keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+@keyframes win{30%{box-shadow:0 0 0 6px #3fcf85,0 0 40px #3fcf85}}
+.msg{min-height:3.6em;margin:8px 0;padding:10px 14px;border-radius:12px;display:flex;align-items:center;background:var(--card);border:1px solid var(--bd);transition:background .3s}
+.msg.ok{background:var(--okb);color:var(--okc);border-color:var(--okc);font-weight:600;animation:pop .4s}
+.msg.bad{background:var(--badb);color:var(--badc);border-color:var(--badc)}
+.msg.hint{background:var(--hb);color:var(--hc);border:1px solid #f0b400;font-weight:700;box-shadow:0 0 18px rgba(255,196,40,.55);animation:pop .4s}
+@keyframes pop{from{transform:scale(.96);opacity:.4}}
+.turn{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:10px 16px;margin:10px 0;box-shadow:var(--sh)}
+.turn div{flex:1;display:flex;flex-direction:column;line-height:1.3}.turn span,.turn em{color:var(--mu);font-size:14px;font-style:normal}
+.dot{width:22px;height:22px;border-radius:50%;border:2px solid #333;flex:none}.dot.w{background:#fff}.dot.b{background:#1b1b1b}
+.seg{display:flex;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:4px;gap:4px;margin:10px 0}.seg button{flex:1;border:0;background:none}.seg button.on{background:var(--ac)}
+.chips button,.lb{min-width:44px;padding:8px 6px;border-radius:10px}.chips button.dn::after{content:" ✓";color:var(--c0)}.chips button.on.dn::after{color:var(--ac2)}
+.lbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:8px;margin:8px 0 16px}
+.lb{font-weight:700;border-width:2px}.L0 .lb,.lb.L0{border-color:var(--c0)}.lb.L1{border-color:var(--c1)}.lb.L2{border-color:var(--c2)}
+.lb:hover{color:#fff;transform:translateY(-3px) scale(1.05)}.lb.L0:hover{background:var(--c0)}.lb.L1:hover{background:var(--c1)}.lb.L2:hover{background:var(--c2)}
+.tag{display:inline-block;padding:3px 12px;border-radius:99px;font:700 13px system-ui;color:#fff}.tag.L0{background:var(--c0)}.tag.L1{background:var(--c1)}.tag.L2{background:var(--c2)}
+.lh h2{font-size:32px;margin:6px 0 4px}
+.ctl{display:flex;gap:8px;width:var(--bs,100%);max-width:100%}.ctl button{flex:1;padding:10px 0;font-size:18px}
+.mlist{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:12px 0}.mn{color:var(--mu);margin:0 2px 0 8px;font-size:14px}
+.mc{padding:3px 10px;border-radius:8px;font-weight:600}
+ol.st{padding-left:22px;margin:6px 0}ol.st li{margin:5px 0}
+details{border-bottom:1px solid var(--bd);padding:10px 0}details:last-child{border:0}summary{cursor:pointer;font-weight:600}
+.vals{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px;margin:10px 0}
+.vals div{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px;text-align:center;box-shadow:var(--sh)}
+.vals b{display:block;font-size:30px;line-height:1.2}.vals span{font-size:14px;color:var(--mu)}
+input{font:inherit;width:84px;padding:9px;border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--tx)}
+</style></head>
+<body>
+<header><div class="logo">♞</div><h1>ChessMind</h1><button id="th" title="Theme">◐</button></header>
+<nav id="nav"></nav>
+<main id="v"></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<script>
+const $=i=>document.getElementById(i),v=$('v'),rnd=n=>Math.floor(Math.random()*n);
+let S={1:[],2:[]},TM=null;
+try{const x=JSON.parse(localStorage.getItem('cm3'));if(x&&x[1]&&x[2])S=x}catch(e){}
+const sv=()=>{try{localStorage.setItem('cm3',JSON.stringify(S))}catch(e){}};
+const sym={k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
+const sqn=(r,c)=>'abcdefgh'[c]+(8-r),rc=s=>[8-+s[1],'abcdefgh'.indexOf(s[0])];
+const empty=()=>Array.from({length:8},()=>Array(8).fill(null));
+$('th').onclick=()=>{const r=document.documentElement,d=getComputedStyle(r).colorScheme.includes('dark');r.dataset.theme=d?'light':'dark'};
+
+/* ---------- Board engine: fixed grid, tap + drag, animations ---------- */
+function draw(el,bd,o={}){
+  const f=document.createDocumentFragment(),an={};
+  (o.mv||[]).forEach(m=>an[m.to]=m);
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const br=o.fl?7-r:r,bc=o.fl?7-c:c,sq=sqn(br,bc),p=bd[br][bc],d=document.createElement('div'),t=o.tg&&o.tg.includes(sq);
+    d.className='sq '+((br+bc)%2?'d':'l')+(o.last&&o.last.includes(sq)?' last':'')+(o.sel===sq?' sel':'')+(t?(p?' cap':' tg'):'')+(o.chk===sq?' chk':'')+(o.hint===sq?' hint':'');
+    d.dataset.s=sq;
+    if(c==0)d.dataset.r=8-br;if(r==7)d.dataset.f='abcdefgh'[bc];
+    if(p){
+      const s=document.createElement('span');s.className='pc '+p.color;s.textContent=sym[p.type]+'\uFE0E';
+      if(an[sq]){const [fr,fc]=rc(an[sq].from);s.style.setProperty('--dx',(o.fl?7-fc:fc)-c);s.style.setProperty('--dy',(o.fl?7-fr:fr)-r);s.classList.add('mv')}
+      d.appendChild(s);
+    }
+    f.appendChild(d);
+  }
+  el.replaceChildren(f);
+}
+function bind(el,tap){
+  let from=null,dragged=0;
+  const at=e=>{const t=document.elementFromPoint(e.clientX,e.clientY),q=t&&t.closest&&t.closest('.sq');return q&&el.contains(q)?q.dataset.s:null};
+  el.onpointerdown=e=>{from=at(e)};
+  el.onpointerup=e=>{if(!from)return;const to=at(e);if(to&&to!==from){dragged=Date.now();tap(from,1);tap(to)}from=null};
+  el.onclick=e=>{if(Date.now()-dragged<350)return;const q=e.target.closest('.sq');if(q)tap(q.dataset.s)};
+}
+const mvl=m=>{const a=[{from:m.from,to:m.to}],k=m.from[1];if(m.flags.includes('k'))a.push({from:'h'+k,to:'f'+k});if(m.flags.includes('q'))a.push({from:'a'+k,to:'d'+k});return a};
+function chkSq(g){if(!g.in_check())return null;const b=g.board();for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=b[r][c];if(p&&p.type=='k'&&p.color==g.turn())return sqn(r,c)}return null}
+function play(el,g,can,after,fl){
+  let sel=null,last=null,mvs=null,hint=null;
+  const R=()=>{draw(el,g.board(),{fl,sel,last,hint,chk:chkSq(g),mv:mvs,tg:sel?g.moves({square:sel,verbose:true}).map(m=>m.to):[]});mvs=null};
+  const go=m=>{g.move({from:m.from,to:m.to,promotion:'q'});mvs=mvl(m);last=[m.from,m.to];sel=null;hint=null;R();after(m)};
+  const tap=(sq,force)=>{
+    if(!can())return;
+    if(sel){const m=g.moves({square:sel,verbose:true}).find(m=>m.to===sq);if(m){go(m);return}}
+    const p=g.get(sq);sel=p&&p.color===g.turn()&&(force||sel!==sq)?sq:null;R();
+  };
+  R.clr=()=>{sel=null;last=null;hint=null;R()};
+  R.hint=s=>{hint=s;sel=null;R()};
+  R.show=m=>{last=[m.from,m.to];mvs=mvl(m);hint=null;R()};
+  bind(el,tap);R();return R;
+}
+
+/* ---------- Data ---------- */
+const PC=[
+['k','King','♚','Worth: priceless','The most important piece. If your king is checkmated, you lose the game.','d4',['e5'],['The king moves exactly 1 square in any direction: forward, back, sideways or diagonally.','It captures by moving onto an enemy piece (the red ring).','It can never move to a square attacked by the enemy.','Keep it safe: castle early!']],
+['q','Queen','♛','Worth: 9 points','The strongest piece. It moves like a rook and a bishop together.','d4',['d7','g7'],['The queen moves any number of squares in a straight line: up, down, sideways or diagonally.','It cannot jump over other pieces.','Do not bring it out too early, or smaller pieces will chase it.']],
+['r','Rook','♜','Worth: 5 points','A powerful piece that controls whole files and ranks.','d4',['d7','g4'],['The rook moves any number of squares up, down or sideways.','It cannot jump over other pieces.','Rooks take part in castling and are strongest on open files.']],
+['b','Bishop','♝','Worth: 3 points','Slides diagonally and always stays on the same square colour.','d4',['g7','b2'],['The bishop moves any number of squares diagonally.','It cannot jump over other pieces.','You have one light-squared and one dark-squared bishop. Together they cover the whole board.']],
+['n','Knight','♞','Worth: 3 points','The only piece that can jump over others.','d4',['e6','c2'],['The knight moves in an “L” shape: 2 squares in one direction, then 1 square sideways.','It jumps over any piece in the way.','Knights are strongest near the center of the board.']],
+['p','Pawn','♟','Worth: 1 point','Small but important. It is the soul of chess.','e2',['d3','f3'],['A pawn moves forward 1 square. From its starting square it may move 2 squares.','It captures diagonally, one square forward (the red rings).','It can never move or capture backwards.','Reaching the last rank promotes it to a queen, rook, bishop or knight.','Special rule: en passant (see Rules).']],
+['castle','Castling','♜♚','Special move','The only move where two pieces move at once. It protects your king and activates your rook.','',[],[]]];
+const LV=['Basic','Intermediate','Advanced'];
+const OP=`Italian Game:e4 e5 Nf3 Nc6 Bc4 Bc5 c3 Nf6 d4 exd4 cxd4
+Ruy Lopez:e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O Be7 Re1 b5 Bb3 d6
+Scotch Game:e4 e5 Nf3 Nc6 d4 exd4 Nxd4 Nf6 Nc3 Bb4
+Four Knights Game:e4 e5 Nf3 Nc6 Nc3 Nf6 Bb5 Bb4 O-O O-O
+King’s Gambit:e4 e5 f4 exf4 Nf3 g5 h4 g4
+Queen’s Gambit:d4 d5 c4 e6 Nc3 Nf6 Bg5 Be7 e3 O-O
+London System:d4 d5 Nf3 Nf6 Bf4 e6 e3 c5 c3 Nc6
+Vienna Game:e4 e5 Nc3 Nf6 f4 d5 fxe5 Nxe4
+Bishop’s Opening:e4 e5 Bc4 Nf6 d3 c6 Nf3 d5
+Petroff Defense:e4 e5 Nf3 Nf6 Nxe5 d6 Nf3 Nxe4 d4 d5
+Philidor Defense:e4 e5 Nf3 d6 d4 exd4 Nxd4 Nf6 Nc3
+Scandinavian Defense:e4 d5 exd5 Qxd5 Nc3 Qa5 d4 Nf6
+French Defense:e4 e6 d4 d5 Nc3 Nf6 e5 Nfd7
+Caro-Kann Defense:e4 c6 d4 d5 Nc3 dxe4 Nxe4 Bf5
+Sicilian Defense:e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3
+King’s Indian Attack:Nf3 d5 g3 Nf6 Bg2 e6 O-O Be7 d3 O-O
+Ponziani Opening:e4 e5 Nf3 Nc6 c3 Nf6 d4 exd4 e5
+Colle System:d4 d5 Nf3 Nf6 e3 e6 Bd3 c5 O-O
+English Opening:c4 e5 Nc3 Nf6 g3 d5 cxd5 Nxd5
+Réti Opening:Nf3 d5 c4 d4 e3 c5 b4
+Sicilian Najdorf:e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 a6
+Sicilian Dragon:e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 g6
+Accelerated Dragon:e4 c5 Nf3 Nc6 d4 cxd4 Nxd4 g6
+French Winawer:e4 e6 d4 d5 Nc3 Bb4 e5 c5
+French Classical:e4 e6 d4 d5 Nc3 Nf6 Bg5 Be7
+Caro-Kann Advance:e4 c6 d4 d5 e5 Bf5 Nf3 e6
+Caro-Kann Classical:e4 c6 d4 d5 Nc3 dxe4 Nxe4 Bf5
+King’s Indian Defense:d4 Nf6 c4 g6 Nc3 Bg7 e4 d6 Nf3 O-O
+Grünfeld Defense:d4 Nf6 c4 g6 Nc3 d5 Nf3 Bg7
+Nimzo-Indian Defense:d4 Nf6 c4 e6 Nc3 Bb4 e3 O-O
+Queen’s Indian Defense:d4 Nf6 c4 e6 Nf3 b6 g3 Bb7
+Benoni Defense:d4 Nf6 c4 c5 d5 e6 Nc3 exd5
+Slav Defense:d4 d5 c4 c6 Nf3 Nf6 Nc3 dxc4
+Semi-Slav Defense:d4 d5 c4 e6 Nc3 Nf6 Nf3 c6
+Dutch Defense:d4 f5 g3 Nf6 Bg2 e6 Nf3 Be7
+Catalan Opening:d4 Nf6 c4 e6 g3 d5 Bg2 Be7
+Scotch Gambit:e4 e5 Nf3 Nc6 d4 exd4 Bc4 Bc5
+Evans Gambit:e4 e5 Nf3 Nc6 Bc4 Bc5 b4 Bxb4 c3
+Vienna Gambit:e4 e5 Nc3 Nf6 f4 d5 fxe5 Nxe4
+Albin Countergambit:d4 d5 c4 e5 dxe5 d4 Nf3 Nc6
+Najdorf Poisoned Pawn:e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 a6 Bg5 e6 f4 Qb6
+Sicilian Sveshnikov:e4 c5 Nf3 Nc6 d4 cxd4 Nxd4 Nf6 Nc3 e5 Ndb5 d6
+Sicilian Scheveningen:e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 e6
+Sicilian Taimanov:e4 c5 Nf3 e6 d4 cxd4 Nxd4 Nc6 Nc3 Qc7
+King’s Indian Mar del Plata:d4 Nf6 c4 g6 Nc3 Bg7 e4 d6 Nf3 O-O Be2 e5 O-O Nc6 d5 Ne7
+Grünfeld Russian System:d4 Nf6 c4 g6 Nc3 d5 Nf3 Bg7 Qb3
+Grünfeld Exchange Variation:d4 Nf6 c4 g6 Nc3 d5 cxd5 Nxd5 e4
+Nimzo-Indian Sämisch:d4 Nf6 c4 e6 Nc3 Bb4 a3 Bxc3+ bxc3
+Nimzo-Indian Rubinstein:d4 Nf6 c4 e6 Nc3 Bb4 e3 O-O Bd3 d5
+Ruy Lopez Marshall Attack:e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O Be7 Re1 b5 Bb3 O-O c3 d5
+Ruy Lopez Berlin Defense:e4 e5 Nf3 Nc6 Bb5 Nf6 O-O Nxe4 d4 Nd6
+Ruy Lopez Open Variation:e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O Nxe4
+Queen’s Gambit Declined Orthodox:d4 d5 c4 e6 Nc3 Nf6 Bg5 Be7 e3 O-O
+Semi-Slav Botvinnik:d4 d5 c4 e6 Nc3 Nf6 Nf3 c6 Bg5 dxc4 e4 b5
+Benko Gambit:d4 Nf6 c4 c5 d5 b5 cxb5 a6 bxa6 Bxa6
+Budapest Gambit:d4 Nf6 c4 e5 dxe5 Ng4 Bf4 Nc6 Nf3
+Modern Benoni Taimanov:d4 Nf6 c4 c5 d5 e6 Nc3 exd5 cxd5 d6
+Pirc Defense Austrian Attack:e4 d6 d4 Nf6 Nc3 g6 f4 Bg7
+Alekhine Defense:e4 Nf6 e5 Nd5 d4 d6 Nf3
+Trompowsky Attack:d4 Nf6 Bg5 Ne4 Bf4 d5 e3`.split('\n').map(l=>l.split(':'));
+const P1=['6k1/5ppp/8/8/8/8/5PPP/R5K1 w - - 0 1','r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4','rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 2','6rk/6pp/8/6N1/8/8/8/6K1 w - - 0 1','7k/8/6K1/8/8/8/8/1Q6 w - - 0 1','k7/8/1K6/8/8/8/8/7R w - - 0 1','6k1/6pp/8/2R1N2Q/1r6/8/2P5/K1R5 w - - 0 1','7k/3B2pp/7Q/7R/8/8/2K1P1R1/8 w - - 0 1','5k2/4pppK/8/8/2R2p2/8/P7/5Q2 w - - 0 1','3B4/3p4/6n1/6q1/4P3/P6k/2PPP3/3K4 b - - 0 1','B4qbn/8/5P2/8/8/1r6/2PP4/k1K5 b - - 0 1','6k1/5ppp/4P3/6K1/P5R1/6N1/8/1n1R4 w - - 0 1','3nk3/K3pp2/8/3Q4/8/8/2b5/3R4 w - - 0 1','3r2k1/2R3pp/2PQ4/8/2R4K/8/8/5Bn1 w - - 0 1','5q2/8/3P4/8/8/7k/PPP5/1K6 b - - 0 1','7k/5ppp/8/2P2RQ1/3PK3/6r1/2R5/8 w - - 0 1','1k6/ppp3rQ/8/8/8/8/1n6/3RK3 w - - 0 1','5k2/3R1p2/8/8/2P1p3/R7/6Q1/5NK1 w - - 0 1','6qr/8/3b4/8/8/4P3/7P/1k5K b - - 0 1','5k2/5pp1/4R3/8/8/2P1P1pQ/8/7K w - - 0 1'];
+const P2=['R2b1k2/2P1p3/Q2B4/8/4R3/8/4P1N1/6K1 w - - 0 1','8/k6B/pp6/5Q2/8/8/3R3K/8 w - - 0 1','6k1/1R3pp1/8/3Q4/7B/6P1/4K3/3R4 w - - 0 1','4k3/5p1K/R7/5pR1/8/7P/8/8 w - - 0 1','7k/3r4/6qN/8/8/3PPP2/r1P1K3/8 b - - 0 1','1R6/4p1k1/5pp1/8/1K2R3/6Q1/2P3n1/8 w - - 0 1','k7/6p1/8/P7/Q6R/8/3B4/7K w - - 0 1','5Q2/7k/3P1p1p/3N4/8/8/8/2R2Kn1 w - - 0 1','1k6/p1p5/4r3/3Q4/5R2/6K1/2N5/8 w - - 0 1','1K4k1/5p1p/8/4R3/2R5/2Q1r3/8/2b5 w - - 0 1','7k/3pr1pp/8/1QP5/6K1/3N3R/8/8 w - - 0 1','7k/7p/6P1/1RN5/8/2K4p/6Q1/5B2 w - - 0 1','1K3k2/3Ppp2/7R/4R3/8/5P2/8/8 w - - 0 1','k2K4/pp6/1P6/8/1Q6/6p1/8/8 w - - 0 1','k7/8/8/6R1/4P3/6K1/2PR2Q1/8 w - - 0 1','5k2/4p1pR/8/8/K7/3R4/1P6/1Q6 w - - 0 1','6k1/2BpKppp/r7/8/1P4b1/8/8/5Q2 w - - 0 1','K6k/4p1pp/3Q3P/8/8/5rPp/8/5R2 w - - 0 1','8/q4k2/8/8/1b6/8/1r3P1P/5nK1 b - - 0 1','5k2/2r5/8/2q5/3P3N/8/2P5/1K6 b - - 0 1'];
+const VAL={p:1,n:3,b:3,r:5,q:9};
+
+/* ---------- Navigation ---------- */
+const T=[['Home',vHome],['Pieces',()=>vPcs()],['Rules',vRules],['Values',vVal],['Openings',()=>vOpn()],['Puzzles',()=>vPuz()]];
+const nav=$('nav');
+T.forEach((t,i)=>{const b=document.createElement('button');b.textContent=t[0];b.onclick=()=>go(i);nav.appendChild(b)});
+function go(i){clearInterval(TM);[...nav.children].forEach((b,j)=>b.classList.toggle('on',i==j));window.scrollTo(0,0);T[i][1]()}
+
+/* ---------- Home ---------- */
+function vHome(){
+  const D=['Learn how every piece moves, plus castling','The complete rules of the game','Piece values and counting practice','60 opening lessons in 3 levels','40 checkmate puzzles: mate in 1 and mate in 2'];
+  v.innerHTML=`<div class="hero"><span class="fl" style="left:6%;top:10%">♞</span><span class="fl" style="right:8%;top:18%;animation-delay:-2s">♛</span><span class="fl" style="right:30%;bottom:6%;animation-delay:-4s">♜</span>
+  <h2>Learn chess the right way</h2><p>ChessMind is a platform for chess learners. Master the pieces, study 60 openings and solve 40 checkmate puzzles.</p><button onclick="go(1)">Start learning ›</button></div>
+  <div class="grid">${T.slice(1).map((t,i)=>`<button class="card" onclick="go(${i+1})"><b><span class="num">${i+1}</span>${t[0]}</b><span>${D[i]}</span></button>`).join('')}</div>`;
+}
+
+/* ---------- Pieces ---------- */
+function vPcs(k=null){
+  if(k===null){
+    v.innerHTML=`<h2>Meet the pieces</h2><p class="mu">Tap a piece to open its lesson.</p>
+    <div class="grid">${PC.map((p,i)=>`<button class="card" data-i="${i}"><span class="gl">${p[2]}${i<6?'\uFE0E':''}</span><b>Lesson ${i+1}: ${p[1]}</b><span>${p[3]}</span></button>`).join('')}</div>`;
+    v.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>vPcs(+b.dataset.i));return;
+  }
+  const P=PC[k],nv=`<div class="row"><button id="pv">‹ Previous</button><button id="al">All pieces</button><button id="nx">Next ›</button></div>`;
+  if(P[0]=='castle')return vCastle(k,nv);
+  v.innerHTML=`<h2>Lesson ${k+1}: ${P[1]} ${P[2]}\uFE0E</h2><p><b>${P[3]}.</b> ${P[4]}</p>
+  <div class="lay"><div><div class="bd" id="b"></div><div class="row"><button id="rs" class="pr">↺ Reset</button></div></div>
+  <div><div class="panel"><h3>How it moves</h3><ol class="st">${P[7].map(x=>`<li>${x}</li>`).join('')}</ol></div><p class="mu sm">Try it: tap the white piece (or drag it), then pick a highlighted square. Red rings are captures.</p>${nv}</div></div>`;
+  const bd=empty();let sel=null,mvs=null;
+  const rd=()=>{draw($('b'),bd,{sel:sel&&sqn(...sel),tg:sel?targets(bd,...sel).map(t=>sqn(...t)):[],mv:mvs});mvs=null};
+  const reset=()=>{bd.forEach(r=>r.fill(null));const [r,c]=rc(P[5]);bd[r][c]={type:P[0],color:'w'};P[6].forEach(s=>{const [a,b]=rc(s);bd[a][b]={type:'p',color:'b'}});sel=null;rd()};
+  bind($('b'),(s,force)=>{
+    const [r,c]=rc(s);
+    if(sel&&targets(bd,...sel).some(t=>t[0]==r&&t[1]==c)){mvs=[{from:sqn(...sel),to:s}];bd[r][c]=bd[sel[0]][sel[1]];bd[sel[0]][sel[1]]=null;sel=[r,c]}
+    else sel=bd[r][c]&&bd[r][c].color=='w'&&(force||!(sel&&sel[0]==r&&sel[1]==c))?[r,c]:null;
+    rd();
+  });
+  $('rs').onclick=reset;reset();wireNav(k);
+}
+function wireNav(k){$('pv').onclick=()=>vPcs((k+PC.length-1)%PC.length);$('nx').onclick=()=>vPcs((k+1)%PC.length);$('al').onclick=()=>vPcs()}
+function targets(b,r,c){
+  const p=b[r][c],t=[],ok=(a,d)=>a>=0&&a<8&&d>=0&&d<8;
+  const add=(a,d)=>{if(!ok(a,d))return false;const q=b[a][d];if(q){if(q.color!=p.color)t.push([a,d]);return false}t.push([a,d]);return true};
+  const slide=ds=>ds.forEach(([x,y])=>{let a=r+x,d=c+y;while(add(a,d)){a+=x;d+=y}});
+  const D=[[1,1],[1,-1],[-1,1],[-1,-1]],O=[[1,0],[-1,0],[0,1],[0,-1]];
+  if(p.type=='r')slide(O);if(p.type=='b')slide(D);if(p.type=='q')slide(O.concat(D));
+  if(p.type=='k')O.concat(D).forEach(([x,y])=>add(r+x,c+y));
+  if(p.type=='n')[[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]].forEach(([x,y])=>add(r+x,c+y));
+  if(p.type=='p'){
+    if(ok(r-1,c)&&!b[r-1][c]){t.push([r-1,c]);if(r==6&&!b[4][c])t.push([4,c])}
+    [-1,1].forEach(x=>{if(ok(r-1,c+x)&&b[r-1][c+x]&&b[r-1][c+x].color=='b')t.push([r-1,c+x])});
+  }
+  return t;
+}
+function vCastle(k,nv){
+  const F='r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1',g=new Chess(F);
+  v.innerHTML=`<h2>Lesson ${k+1}: Castling ♜♚</h2><p>${PC[k][4]}</p>
+  <div class="lay"><div><div class="bd" id="b"></div><div class="row"><button id="rs" class="pr">↺ Reset</button></div></div>
+  <div><p class="msg" id="m">Tap the white king, then tap g1 (short) or c1 (long).</p>
+  <div class="panel"><h3>The rules</h3><ol class="st"><li>The king moves 2 squares toward a rook, and that rook jumps to the other side of the king.</li><li>Short castling (O-O) uses the rook on h1. Long castling (O-O-O) uses the rook on a1.</li><li>Neither the king nor that rook may have moved before.</li><li>All squares between them must be empty.</li><li>The king may not be in check, pass through an attacked square, or land on one.</li></ol></div>${nv}</div></div>`;
+  const m=$('m');
+  const r=play($('b'),g,()=>g.turn()=='w',mv=>{m.className='msg ok';m.textContent=mv.flags.includes('k')?'✅ Short castling (O-O): king to g1, rook to f1.':mv.flags.includes('q')?'✅ Long castling (O-O-O): king to c1, rook to d1.':'A normal move. Press Reset and castle with the king.'});
+  $('rs').onclick=()=>{g.load(F);m.className='msg';m.textContent='Tap the white king, then tap g1 (short) or c1 (long).';r.clr()};
+  wireNav(k);
+}
+
+/* ---------- Rules ---------- */
+function vRules(){
+  const R=[['1. The goal','Checkmate the enemy king: attack it so that it cannot escape. The king is never actually captured.'],
+  ['2. The setup','The board has 64 squares (8×8) and the bottom-right corner square is light. Each player has 16 pieces: 1 king, 1 queen, 2 rooks, 2 bishops, 2 knights and 8 pawns. The queen starts on her own colour. White always moves first.'],
+  ['3. Taking turns','Players move one piece at a time and may never pass. A piece captures by landing on an enemy piece, which is removed from the board. You cannot capture your own pieces, and only the knight can jump over pieces.'],
+  ['4. Check','When your king is attacked it is in check, and you must fix it right away by moving the king, blocking the attack, or capturing the attacker.'],
+  ['5. Checkmate','If your king is in check and none of those three answers works, it is checkmate and the game is over.'],
+  ['6. Stalemate','If it is your turn, your king is not in check, but you have no legal move, the game is a draw.'],
+  ['7. Castling','Moves the king 2 squares and jumps the rook over it. Open Pieces → Lesson 7 to practice.'],
+  ['8. En passant','If an enemy pawn moves 2 squares and lands right beside your pawn, you may capture it as if it had moved only 1 square. You can do this only on the very next move.'],
+  ['9. Promotion','A pawn that reaches the last rank must become a queen, rook, bishop or knight (usually a queen). In this app promotion is automatic and always a queen.'],
+  ['10. Other draws','A draw also happens by agreement, by threefold repetition of the same position, after 50 moves without a capture or pawn move, or when neither side has enough pieces to checkmate (for example king vs king).']];
+  v.innerHTML=`<h2>Chess rules</h2><p class="mu">Everything you need to play a full game.</p>
+  <div class="lay"><div><div class="bd" id="b"></div></div><div class="panel">${R.map((r,i)=>`<details ${i<2?'open':''}><summary>${r[0]}</summary><p class="mu" style="margin:6px 0 0">${r[1]}</p></details>`).join('')}</div></div>`;
+  draw($('b'),new Chess().board());
+}
+
+/* ---------- Values & counting ---------- */
+let pos=null,got=false;
+function newPos(){
+  const b=empty(),free=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++)free.push([r,c]);
+  free.sort(()=>Math.random()-.5);const tot={w:0,b:0};
+  const put=(t,col,pawn)=>{const i=free.findIndex(([r])=>!pawn||(r>0&&r<7)),[r,c]=free.splice(i,1)[0];b[r][c]={type:t,color:col}};
+  ['w','b'].forEach(col=>{put('k',col);const n={p:1+rnd(5),n:rnd(3),b:rnd(3),r:rnd(3),q:rnd(2)};for(const t in n)for(let i=0;i<n[t];i++){put(t,col,t=='p');tot[col]+=VAL[t]}});
+  pos={b,w:tot.w,bl:tot.b};
+}
+function vVal(){
+  newPos();
+  v.innerHTML=`<h2>Piece values</h2><p class="mu">Every piece has a point value. Use it to decide whether a trade is good. The king is not counted: it is priceless.</p>
+  <div class="vals">${[['p','Pawn',1],['n','Knight',3],['b','Bishop',3],['r','Rook',5],['q','Queen',9]].map(x=>`<div><b>${sym[x[0]]}\uFE0E</b>${x[1]}<br><span>${x[2]} pt</span></div>`).join('')}</div>
+  <p class="mu sm">Example: trading a rook (5) for a knight + bishop (6) wins you 1 point.</p>
+  <h3>Practice: count the material</h3>
+  <div class="lay"><div><div class="bd" id="b"></div></div><div><p class="mu sm">Add up the points of each side. Kings do not count.</p>
+  <div class="row" style="align-items:center">White <input id="iw" type="number" inputmode="numeric"> Black <input id="ib" type="number" inputmode="numeric"></div>
+  <p class="msg" id="m">Enter both totals, then press Check.</p><div class="row"><button id="ck" class="pr">Check</button><button id="nw">New position</button></div></div></div>`;
+  draw($('b'),pos.b);const m=$('m');
+  $('ck').onclick=()=>{
+    const ok=+$('iw').value==pos.w&&+$('ib').value==pos.bl&&$('iw').value!==''&&$('ib').value!=='';
+    m.className='msg '+(ok?'ok':'bad');
+    m.textContent=ok?`✅ Correct! White ${pos.w}, Black ${pos.bl}. ${pos.w==pos.bl?'Material is equal.':(pos.w>pos.bl?'White':'Black')+' is ahead by '+Math.abs(pos.w-pos.bl)+'.'}`:'❌ Not quite. Count each piece again and try once more.';
+  };
+  $('nw').onclick=vVal;
+}
+
+/* ---------- Openings: 60 numbered lessons ---------- */
+function vOpn(k=null){
+  clearInterval(TM);
+  if(k===null){
+    const D=['The most common first moves and ideas.','Deeper systems with sharper plans.','Specialist theory for experienced players.'];
+    v.innerHTML=`<h2>Opening lessons</h2><p class="mu">60 lessons in 3 levels. Tap a number to open the lesson.</p>`+LV.map((n,l)=>`<h3><span class="tag L${l}">${n}</span> <span class="mu sm">Lessons ${l*20+1}–${l*20+20} · ${D[l]}</span></h3><div class="lbs">${Array.from({length:20},(_,j)=>`<button class="lb L${l}" data-k="${l*20+j}">${l*20+j+1}</button>`).join('')}</div>`).join('');
+    v.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{window.scrollTo(0,0);vOpn(+b.dataset.k)});return;
+  }
+  const [name,line]=OP[k],lv=Math.floor(k/20),g0=new Chess(),mv=[];
+  for(const t of line.split(' ')){const m=g0.move(t);if(!m)break;mv.push(m.san)}
+  const g=new Chess();let s=0;
+  v.innerHTML=`<div class="row"><button id="al">‹ All lessons</button></div>
+  <div class="lh"><span class="tag L${lv}">${LV[lv]} · Lesson ${k+1}</span><h2>${name}</h2></div>
+  <div class="lay"><div><div class="bd" id="b"></div><div class="ctl"><button id="a">⏮</button><button id="p">‹</button><button id="pl" class="pr">▶</button><button id="n">›</button><button id="z">⏭</button></div></div>
+  <div><p class="msg" id="cap"></p><div class="mlist">${mv.map((x,j)=>`${j%2?'':`<span class="mn">${j/2+1}.</span>`}<button class="mc" data-j="${j}">${x}</button>`).join('')}</div>
+  <div class="row"><button id="pv">‹ Lesson ${(k+59)%60+1}</button><button id="nx">Lesson ${(k+1)%60+1} ›</button></div></div></div>`;
+  const u=an=>{
+    g.reset();let lm=null;for(let j=0;j<s;j++)lm=g.move(mv[j]);
+    draw($('b'),g.board(),{last:lm?[lm.from,lm.to]:null,chk:chkSq(g),mv:an&&lm?mvl(lm):null});
+    $('cap').textContent=s?`Move ${s} of ${mv.length} · ${(s-1)%2?'Black':'White'} plays ${mv[s-1]}`:'Press ▶ to watch the lesson, or step through with ›.';
+    v.querySelectorAll('.mc').forEach((b,j)=>b.classList.toggle('on',j==s-1));
+  };
+  const stop=()=>{clearInterval(TM);$('pl').textContent='▶'};
+  $('a').onclick=()=>{stop();s=0;u()};$('z').onclick=()=>{stop();s=mv.length;u()};
+  $('p').onclick=()=>{stop();s=Math.max(0,s-1);u()};$('n').onclick=()=>{stop();if(s<mv.length){s++;u(1)}};
+  $('pl').onclick=()=>{
+    if(TM&&$('pl').textContent=='⏸'){stop();return}
+    if(s>=mv.length)s=0;$('pl').textContent='⏸';
+    TM=setInterval(()=>{if(s>=mv.length){stop();return}s++;u(1)},1000);
+  };
+  v.querySelectorAll('.mc').forEach(b=>b.onclick=()=>{stop();s=+b.dataset.j+1;u()});
+  $('al').onclick=()=>vOpn();$('pv').onclick=()=>{window.scrollTo(0,0);vOpn((k+59)%60)};$('nx').onclick=()=>{window.scrollTo(0,0);vOpn((k+1)%60)};
+  u();
+}
+
+/* ---------- Puzzles: mate in 1 and mate in 2 ---------- */
+const mates=g=>g.moves({verbose:true}).filter(m=>{g.move(m);const k=g.in_checkmate();g.undo();return k});
+const hasMate=g=>g.moves({verbose:true}).some(m=>{g.move(m);const k=g.in_checkmate();g.undo();return k});
+function forced2(g){
+  return g.moves({verbose:true}).filter(m=>{
+    g.move(m);let ok=g.in_checkmate();
+    if(!ok&&!g.game_over())ok=g.moves({verbose:true}).every(r=>{g.move(r);const x=hasMate(g);g.undo();return x});
+    g.undo();return ok;
+  });
+}
+function vPuz(kd=1,i=0){
+  const F=kd==1?P1:P2,g=new Chess(F[i]),w=g.turn()=='w';
+  let lock=false,done=false,stage=1,sols=null;
+  const getS=()=>sols||(sols=forced2(new Chess(F[i])));
+  v.innerHTML=`<div class="seg"><button data-k="1" class="${kd==1?'on':''}">Mate in 1</button><button data-k="2" class="${kd==2?'on':''}">Mate in 2</button></div>
+  <div class="chips" id="pn">${F.map((_,j)=>`<button data-j="${j}" class="${j==i?'on':''}${S[kd].includes(j)?' dn':''}">${j+1}</button>`).join('')}</div>
+  <div class="turn"><i class="dot ${w?'w':'b'}"></i><div><b>${w?'White':'Black'} to move</b><span>Checkmate in ${kd} ${kd==1?'move':'moves'}</span></div><em>Puzzle ${i+1}/20</em></div>
+  <div class="lay"><div><div class="bd" id="b"></div></div>
+  <div><p class="msg" id="m">Find the checkmate. Tap a piece (or drag it) to move.</p>
+  <div class="row"><button id="h">💡 Hint</button><button id="rs">↺ Restart</button><button id="nx" class="pr">Next ›</button></div></div></div>`;
+  const m=$('m'),bd=$('b');
+  const say=(t,c='')=>{m.className='msg '+c;m.textContent=t};
+  const bad=t=>{say(t,'bad');bd.classList.remove('shake');void bd.offsetWidth;bd.classList.add('shake')};
+  const back=()=>setTimeout(()=>{g.undo();r.clr();lock=false},800);
+  const r=play(bd,g,()=>!lock&&!done,()=>{
+    if(g.in_checkmate()){
+      done=true;say('✅ Checkmate! Excellent.','ok');bd.classList.add('win');
+      if(!S[kd].includes(i)){S[kd].push(i);sv();v.querySelector(`#pn [data-j="${i}"]`).classList.add('dn')}return;
+    }
+    lock=true;
+    if(kd==1){bad('That is not checkmate. Try again.');back();return}
+    if(stage==1){
+      const u=g.history({verbose:true}).pop();
+      if(!getS().some(s=>s.from==u.from&&s.to==u.to)){bad('That does not force mate in 2. Try again.');back();return}
+      say('Good move! The opponent replies…');
+      setTimeout(()=>{const rs=g.moves({verbose:true}),p=rs[rnd(rs.length)];g.move(p);r.show(p);stage=2;lock=false;say('Now deliver checkmate!')},800);
+    }else{bad('That is not checkmate. Try again.');back()}
+  },!w);
+  if(kd==2)setTimeout(getS,80);
+  $('h').onclick=()=>{
+    if(done||lock)return;
+    const mv=kd==1||stage==2?mates(g)[0]:getS()[0];
+    if(mv){r.hint(mv.from);say(`💡 Hint: look at the piece on ${mv.from}.`,'hint')}
+  };
+  $('rs').onclick=()=>vPuz(kd,i);$('nx').onclick=()=>{window.scrollTo(0,0);vPuz(kd,(i+1)%20)};
+  v.querySelectorAll('.seg [data-k]').forEach(b=>b.onclick=()=>vPuz(+b.dataset.k,0));
+  v.querySelectorAll('#pn [data-j]').forEach(b=>b.onclick=()=>vPuz(kd,+b.dataset.j));
+}
+go(0);
+</script>
+</body></html>
